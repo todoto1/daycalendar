@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>투두투 플립 날짜 위젯</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
+<style>
+  body {
+    font-family: 'Pretendard', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  #date-widget {
+    width: 140px;
+    height: 140px;
+    background: #000CFE;
+    color: white;
+    border-radius: 25px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    perspective: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .flip-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+  }
+  .flipped {
+    transform: rotateX(180deg);
+  }
+  .front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .back {
+    transform: rotateX(180deg);
+  }
+  .day {
+    font-size: 18px;
+    opacity: 0.8;
+  }
+  .date {
+    font-size: 48px;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+</style>
+</head>
+<body>
+<div id="date-widget">
+  <div class="flip-card" id="flipCard">
+    <div class="front" id="frontFace">
+      <div class="day" id="frontDay">Mon</div>
+      <div class="date" id="frontDate">23</div>
+    </div>
+    <div class="back" id="backFace">
+      <div class="day" id="backDay">Tue</div>
+      <div class="date" id="backDate">24</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const flipCard = document.getElementById("flipCard");
+const frontDay = document.getElementById("frontDay");
+const frontDate = document.getElementById("frontDate");
+const backDay = document.getElementById("backDay");
+const backDate = document.getElementById("backDate");
+
+const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function updateFront() {
+  const now = new Date();
+  frontDay.textContent = days[now.getDay()];
+  frontDate.textContent = String(now.getDate()).padStart(2, "0");
+}
+
+function updateBack() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  backDay.textContent = days[tomorrow.getDay()];
+  backDate.textContent = String(tomorrow.getDate()).padStart(2, "0");
+}
+
+function flipAtMidnight() {
+  const now = new Date();
+  const msToMidnight =
+    new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0) - now;
+
+  setTimeout(() => {
+    flipCard.classList.add("flipped");
+
+    setTimeout(() => {
+      updateFront();      // 앞면을 새로운 날짜로 갱신
+      updateBack();       // 다시 다음 날 준비
+      flipCard.classList.remove("flipped");
+      flipAtMidnight();   // 다음 자정 예약
+    }, 1000); // 플립 애니메이션 후 업데이트
+  }, msToMidnight);
+}
+
+// 초기 설정
+updateFront();
+updateBack();
+flipAtMidnight();
+</script>
+</body>
+</html>
