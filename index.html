@@ -3,103 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>플립 날짜 위젯</title>
+<title>투두투 플립 일자 캘린더</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
 <style>
-body {
-  font-family: 'Pretendard', sans-serif;
-  background: #FFFFFF;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: auto; /* ✅ 100vh → auto */
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* ✅ 노션에서 스크롤 방지 */
-}
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: 'Pretendard', sans-serif;
+    overflow: hidden; /* ✅ 노션 스크롤 방지 */
+  }
 
-#date-widget {
-  max-width: 160px;  /* ✅ 최대 160px, 부모에 따라 자동 줄어듦 */
-  width: 100%;
-  aspect-ratio: 160 / 170; /* ✅ 비율 유지 */
-  background: #000CFE;
-  color: white;
-  border-radius: 35px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  perspective: 800px;
-  position: relative;
-  transition: background 0.5s ease, color 0.5s ease;
-  overflow: hidden;
-}
+  #date-widget {
+    max-width: 160px;   /* ✅ 최대 크기 */
+    width: 100%;        /* ✅ 부모 컨테이너에 맞게 자동 조정 */
+    aspect-ratio: 160 / 170; /* ✅ 비율 유지 */
+    background: #000CFE;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    text-align: center;
+    perspective: 800px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
 
-/* 테마 선택 */
-.theme-selector {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.3);
-  padding: 2% 3%;
-  border-radius: 12px;
-  display: flex;
-  gap: 6px;
-  z-index: 10;
-}
-.theme-btn {
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
+  /* 테마 선택 */
+  .theme-selector {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.3);
+    padding: 2% 3%;
+    border-radius: 12px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+  }
+  .theme-btn {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
 
-/* 플립 카드 */
-.flip-card {
-  width: 100%;
-  height: 75%;
-  margin-top: 20%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 1s cubic-bezier(0.4,0.2,0.2,1);
-}
-.flipped { transform: rotateX(180deg); }
+  /* 플립 카드 */
+  .flip-card {
+    width: 100%;
+    height: 75%;
+    margin-top: 20%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.4,0.2,0.2,1);
+  }
+  .flipped { transform: rotateX(180deg); }
 
-.front, .back {
-  position: absolute;
-  width: 100%; height: 100%;
-  backface-visibility: hidden;
-  border-radius: 25px;
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: center;
-  overflow: hidden;
-}
-.back { transform: rotateX(180deg); }
+  .front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .back { transform: rotateX(180deg); }
 
-/* ✅ 폰트 반응형 (clamp) */
-.day {
-  font-size: clamp(12px, 1.5vw, 20px);
-  font-weight: 300;
-  opacity: 0.8;
-}
-.date {
-  font-size: clamp(28px, 5vw, 52px);
-  font-weight: 200;
-  margin-top: 5px;
-}
+  /* ✅ 반응형 폰트 */
+  .day {
+    font-size: clamp(12px, 2.5vw, 18px);
+    font-weight: 300;
+    opacity: 0.8;
+  }
+  .date {
+    font-size: clamp(28px, 8vw, 52px);
+    font-weight: 200;
+    margin-top: 3px;
+  }
 
-/* 반사광 */
-#date-widget::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
-  pointer-events: none;
-  border-radius: 35px 35px 0 0;
-  z-index: 5;
-}</style>
+  /* 반사광 */
+  #date-widget::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);
+    pointer-events: none;
+    border-radius: 20px 20px 0 0;
+    z-index: 5;
+  }
+</style>
 </head>
 <body>
 <div id="date-widget">
@@ -123,9 +124,10 @@ body {
 
 <script>
 const flipCard = document.getElementById("flipCard");
-const [fd, fD, bd, bD, w] = [
-  'frontDay','frontDate','backDay','backDate','date-widget'
-].map(id=>document.getElementById(id) || document.getElementById(w));
+const fd = document.getElementById("frontDay");
+const fD = document.getElementById("frontDate");
+const bd = document.getElementById("backDay");
+const bD = document.getElementById("backDate");
 const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 function updateFront(){
@@ -134,17 +136,19 @@ function updateFront(){
   fD.textContent=String(n.getDate()).padStart(2,"0");
 }
 function updateBack(){
-  const t=new Date(); t.setDate(t.getDate()+1);
+  const t=new Date();
+  t.setDate(t.getDate()+1);
   bd.textContent=days[t.getDay()];
   bD.textContent=String(t.getDate()).padStart(2,"0");
 }
 function flipAtMidnight(){
-  const now=new Date(),
-        ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+  const now=new Date();
+  const ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
   setTimeout(()=>{
     flipCard.classList.add("flipped");
     setTimeout(()=>{
-      updateFront(); updateBack();
+      updateFront();
+      updateBack();
       flipCard.classList.remove("flipped");
       flipAtMidnight();
     },1200);
