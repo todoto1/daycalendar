@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>투두투 플립 날짜 위젯</title>
+<title>플립 날짜 위젯</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
 <style>
   body {
@@ -16,61 +16,94 @@
     margin: 0;
   }
   #date-widget {
-    width: 140px;
-    height: 140px;
+    width: 160px;
+    height: 170px;
     background: #000CFE;
     color: white;
-    border-radius: 25px;
+    border-radius: 35px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
     text-align: center;
-    perspective: 600px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    perspective: 800px;
+    position: relative;
+    transition: background 0.5s ease, color 0.5s ease;
+    overflow: hidden;
   }
+
+  /* 테마 선택 (상단 중앙) */
+  .theme-selector {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.3);
+    padding: 4px 6px;
+    border-radius: 12px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  .theme-btn {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+
+  /* 플립 카드 */
   .flip-card {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px); /* 테마 영역 제외 */
+    margin-top: 40px;          /* 테마와 요일 사이 간격 */
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.8s ease-in-out;
+    transition: transform 1s cubic-bezier(0.4,0.2,0.2,1);
   }
-  .flipped {
-    transform: rotateX(180deg);
-  }
+  .flipped { transform: rotateX(180deg); }
+
   .front, .back {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     backface-visibility: hidden;
     border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    overflow: hidden;
   }
-  .back {
-    transform: rotateX(180deg);
-  }
-  .day {
-    font-size: 18px;
-    opacity: 0.8;
-  }
-  .date {
-    font-size: 48px;
-    font-weight: bold;
-    margin-top: 5px;
+  .back { transform: rotateX(180deg); }
+
+  /* 얇은 폰트 */
+  .day { font-size: 20px; font-weight: 300; opacity: 0.8; }
+  .date { font-size: 52px; font-weight: 200; margin-top: 5px; }
+
+  /* 반사광(광택) 효과: 위젯 전체 상단에 고정 */
+  #date-widget::before {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 50%;               /* 위젯 높이의 절반 */
+    background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+    pointer-events: none;
+    border-radius: 35px 35px 0 0; /* 위젯의 상단 모서리에 맞춤 */
+    z-index: 5;
   }
 </style>
 </head>
 <body>
 <div id="date-widget">
+  <div class="theme-selector">
+    <div class="theme-btn" style="background:#000CFE" data-theme="blue"></div>
+    <div class="theme-btn" style="background:#FFFFFF; border:1px solid #ccc" data-theme="white"></div>
+    <div class="theme-btn" style="background:#000000" data-theme="black"></div>
+  </div>
+
   <div class="flip-card" id="flipCard">
-    <div class="front" id="frontFace">
+    <div class="front">
       <div class="day" id="frontDay">Mon</div>
       <div class="date" id="frontDate">23</div>
     </div>
-    <div class="back" id="backFace">
+    <div class="back">
       <div class="day" id="backDay">Tue</div>
       <div class="date" id="backDate">24</div>
     </div>
@@ -79,44 +112,44 @@
 
 <script>
 const flipCard = document.getElementById("flipCard");
-const frontDay = document.getElementById("frontDay");
-const frontDate = document.getElementById("frontDate");
-const backDay = document.getElementById("backDay");
-const backDate = document.getElementById("backDate");
+const [fd, fD, bd, bD, w] = [
+  'frontDay','frontDate','backDay','backDate','date-widget'
+].map(id=>document.getElementById(id) || document.getElementById(w));
+const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function updateFront() {
-  const now = new Date();
-  frontDay.textContent = days[now.getDay()];
-  frontDate.textContent = String(now.getDate()).padStart(2, "0");
+function updateFront(){
+  const n=new Date();
+  fd.textContent=days[n.getDay()];
+  fD.textContent=String(n.getDate()).padStart(2,"0");
 }
-
-function updateBack() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  backDay.textContent = days[tomorrow.getDay()];
-  backDate.textContent = String(tomorrow.getDate()).padStart(2, "0");
+function updateBack(){
+  const t=new Date(); t.setDate(t.getDate()+1);
+  bd.textContent=days[t.getDay()];
+  bD.textContent=String(t.getDate()).padStart(2,"0");
 }
-
-function flipAtMidnight() {
-  const now = new Date();
-  const msToMidnight =
-    new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0) - now;
-
-  setTimeout(() => {
+function flipAtMidnight(){
+  const now=new Date(),
+        ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+  setTimeout(()=>{
     flipCard.classList.add("flipped");
-
-    setTimeout(() => {
-      updateFront();      // 앞면을 새로운 날짜로 갱신
-      updateBack();       // 다시 다음 날 준비
+    setTimeout(()=>{
+      updateFront(); updateBack();
       flipCard.classList.remove("flipped");
-      flipAtMidnight();   // 다음 자정 예약
-    }, 1000); // 플립 애니메이션 후 업데이트
-  }, msToMidnight);
+      flipAtMidnight();
+    },1200);
+  }, ms);
 }
 
-// 초기 설정
+// 테마 변경
+document.querySelectorAll(".theme-btn").forEach(btn=>{
+  btn.onclick=()=>{
+    const t=btn.dataset.theme, el=document.getElementById("date-widget");
+    if(t==="blue"){ el.style.background="#000CFE"; el.style.color="#FFF"; }
+    if(t==="white"){ el.style.background="#FFF"; el.style.color="#000"; }
+    if(t==="black"){ el.style.background="#000"; el.style.color="#FFF"; }
+  };
+});
+
 updateFront();
 updateBack();
 flipAtMidnight();
